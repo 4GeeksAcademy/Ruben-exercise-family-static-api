@@ -29,12 +29,35 @@ def sitemap():
     return generate_sitemap(app)
 
 
+# Ruta que devuelve todos los miembros de la familia
 @app.route('/members', methods=['GET'])
 def handle_hello():
-    # This is how you can use the Family datastructure by calling its methods
     members = jackson_family.get_all_members()
-    response_body = {"hello": "world",
-                     "family": members}
+    response_body = {"family": members}
+    return jsonify(response_body), 200
+
+
+# Ruta que devuelve un solo miembro de la familia por su ID
+@app.route('/members/<int:member_id>', methods=['GET'])
+def handle_get_one_member(member_id):
+    member = jackson_family.get_member(member_id)
+    response_body = {"member": member}
+    return jsonify(response_body), 200
+
+# Ruta que añade un nuevo miembre a la familia
+@app.route('/members', methods=['POST'])
+def handle_add_new_member():
+    new_member = request.get_json()
+    jackson_family.add_member(new_member["first_name"], new_member["age"], new_member["lucky_numbers"])
+    return jsonify({"message": "Usuario creado correctamente"}), 200
+
+# Ruta que elimina un solo miembro de la familia por su ID
+@app.route('/members/<int:member_id>', methods=['DELETE'])
+def handle_delete_one_member(member_id):
+    member = jackson_family.delete_member(member_id)
+    response_body = {"member": member}
+    if response_body["member"] is False:
+        return jsonify(response_body), 404
     return jsonify(response_body), 200
 
 
